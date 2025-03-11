@@ -2,6 +2,7 @@
 
 namespace App\Repositories;
 
+use App\Constants\HeartbeatKeys;
 use App\Models\Heartbeat;
 use App\Repositories\Interfaces\HeartbeatRepositoryInterface;
 use Carbon\Carbon;
@@ -22,12 +23,12 @@ final class EloquentHeartbeatRepository implements HeartbeatRepositoryInterface
         return DB::transaction(static function () use ($applicationKey, $heartbeatKey, $unhealthyAfterMinutes) {
             return Heartbeat::updateOrCreate(
                 [
-                    'application_key' => $applicationKey,
-                    'heartbeat_key' => $heartbeatKey,
+                    HeartbeatKeys::DB_APPLICATION_KEY => $applicationKey,
+                    HeartbeatKeys::DB_HEARTBEAT_KEY => $heartbeatKey,
                 ],
                 [
-                    'unhealthy_after_minutes' => $unhealthyAfterMinutes,
-                    'last_check_in' => Carbon::now(),
+                    HeartbeatKeys::DB_UNHEALTHY_AFTER_MINUTES => $unhealthyAfterMinutes,
+                    HeartbeatKeys::DB_LAST_CHECK_IN => Carbon::now(),
                 ]
             );
         });
@@ -44,7 +45,7 @@ final class EloquentHeartbeatRepository implements HeartbeatRepositoryInterface
         $query = Heartbeat::unhealthy();
 
         if (!empty($applicationKeys)) {
-            $query->whereIn('application_key', $applicationKeys);
+            $query->whereIn(HeartbeatKeys::DB_APPLICATION_KEY, $applicationKeys);
         }
 
         $heartbeats = $query->get();
@@ -52,10 +53,10 @@ final class EloquentHeartbeatRepository implements HeartbeatRepositoryInterface
         // Convert Eloquent models to arrays with properly formatted dates
         return $heartbeats->map(function ($heartbeat) {
             return [
-                'application_key' => $heartbeat->application_key,
-                'heartbeat_key' => $heartbeat->heartbeat_key,
-                'unhealthy_after_minutes' => $heartbeat->unhealthy_after_minutes,
-                'last_check_in' => $heartbeat->last_check_in->toIso8601String(),
+                HeartbeatKeys::DB_APPLICATION_KEY => $heartbeat->{HeartbeatKeys::DB_APPLICATION_KEY},
+                HeartbeatKeys::DB_HEARTBEAT_KEY => $heartbeat->{HeartbeatKeys::DB_HEARTBEAT_KEY},
+                HeartbeatKeys::DB_UNHEALTHY_AFTER_MINUTES => $heartbeat->{HeartbeatKeys::DB_UNHEALTHY_AFTER_MINUTES},
+                HeartbeatKeys::DB_LAST_CHECK_IN => $heartbeat->{HeartbeatKeys::DB_LAST_CHECK_IN}->toIso8601String(),
             ];
         })->all();
     }

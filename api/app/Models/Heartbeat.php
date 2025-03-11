@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Constants\HeartbeatKeys;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -12,19 +13,19 @@ class Heartbeat extends Model
     use HasFactory;
 
     protected $fillable = [
-        'application_key',
-        'heartbeat_key',
-        'unhealthy_after_minutes',
-        'last_check_in',
+        HeartbeatKeys::DB_APPLICATION_KEY,
+        HeartbeatKeys::DB_HEARTBEAT_KEY,
+        HeartbeatKeys::DB_UNHEALTHY_AFTER_MINUTES,
+        HeartbeatKeys::DB_LAST_CHECK_IN,
     ];
 
     protected $casts = [
-        'last_check_in' => 'datetime',
+        HeartbeatKeys::DB_LAST_CHECK_IN => 'datetime',
     ];
 
     public function isUnhealthy(): bool
     {
-        $threshold = $this->last_check_in->addMinutes($this->unhealthy_after_minutes);
+        $threshold = $this->{HeartbeatKeys::DB_LAST_CHECK_IN}->addMinutes($this->{HeartbeatKeys::DB_UNHEALTHY_AFTER_MINUTES});
         return Carbon::now()->gt($threshold);
     }
 
@@ -33,12 +34,12 @@ class Heartbeat extends Model
         $now = Carbon::now();
 
         return $query->whereRaw(
-            $this->getDatabaseSpecificDateAddExpression('last_check_in', 'unhealthy_after_minutes'),
+            $this->getDatabaseSpecificDateAddExpression(HeartbeatKeys::DB_LAST_CHECK_IN, HeartbeatKeys::DB_UNHEALTHY_AFTER_MINUTES),
             [$now->toDateTimeString()]
         );
     }
 
-    protected function getDatabaseSpecificDateAddExpression($dateColumn, $minutesColumn): string
+    protected function getDatabaseSpecificDateAddExpression(string $dateColumn, string $minutesColumn): string
     {
         $driver = DB::connection()->getDriverName();
 

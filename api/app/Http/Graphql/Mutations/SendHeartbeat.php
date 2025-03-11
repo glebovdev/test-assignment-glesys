@@ -2,6 +2,7 @@
 
 namespace App\Http\Graphql\Mutations;
 
+use App\Constants\HeartbeatKeys;
 use App\Services\HeartbeatService;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\ValidationException;
@@ -23,15 +24,15 @@ final class SendHeartbeat
     public function __invoke($root, array $args): array
     {
         // Extract and validate input parameters
-        $input = $args['input'];
+        $input = $args[HeartbeatKeys::INPUT];
         $this->validateInput($input);
 
         // Use the service to record the heartbeat and get the formatted result
         return [
-            'heartbeat' => $this->heartbeatService->recordAndFormatHeartbeat(
-                $input['applicationKey'],
-                $input['heartbeatKey'],
-                $input['unhealthyAfterMinutes']
+            HeartbeatKeys::HEARTBEAT => $this->heartbeatService->recordAndFormatHeartbeat(
+                $input[HeartbeatKeys::APPLICATION_KEY],
+                $input[HeartbeatKeys::HEARTBEAT_KEY],
+                $input[HeartbeatKeys::UNHEALTHY_AFTER_MINUTES]
             ),
         ];
     }
@@ -45,9 +46,9 @@ final class SendHeartbeat
     private function validateInput(array $input): void
     {
         Validator::make($input, [
-            'applicationKey' => 'required|string|max:255',
-            'heartbeatKey' => 'required|string|max:255',
-            'unhealthyAfterMinutes' => 'required|integer|min:1',
+            HeartbeatKeys::APPLICATION_KEY => 'required|string|max:255',
+            HeartbeatKeys::HEARTBEAT_KEY => 'required|string|max:255',
+            HeartbeatKeys::UNHEALTHY_AFTER_MINUTES => 'required|integer|min:1',
         ])->validate();
     }
 }

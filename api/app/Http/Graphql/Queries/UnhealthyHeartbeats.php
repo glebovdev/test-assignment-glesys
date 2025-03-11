@@ -2,10 +2,14 @@
 
 namespace App\Http\Graphql\Queries;
 
+use App\Constants\HeartbeatKeys;
 use App\Services\HeartbeatService;
 
 final class UnhealthyHeartbeats
 {
+    /**
+     * Constructor with dependency injection
+     */
     public function __construct(private readonly HeartbeatService $heartbeatService)
     {
     }
@@ -19,7 +23,7 @@ final class UnhealthyHeartbeats
      */
     public function __invoke($source, $args)
     {
-        $applicationKeys = $args['applicationKeys'] ?? [];
+        $applicationKeys = $args[HeartbeatKeys::APPLICATION_KEYS] ?? [];
 
         return $this->heartbeatService->getFormattedUnhealthyHeartbeats($applicationKeys);
     }

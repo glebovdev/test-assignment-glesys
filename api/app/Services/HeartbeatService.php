@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Constants\HeartbeatKeys;
 use App\Models\Heartbeat;
 use App\Repositories\Interfaces\HeartbeatRepositoryInterface;
 
@@ -48,10 +49,10 @@ final class HeartbeatService
     private function formatHeartbeat(Heartbeat $heartbeat): array
     {
         return [
-            'applicationKey' => $heartbeat->application_key,
-            'heartbeatKey' => $heartbeat->heartbeat_key,
-            'unhealthyAfterMinutes' => $heartbeat->unhealthy_after_minutes,
-            'lastCheckIn' => $heartbeat->last_check_in->toIso8601String(),
+            HeartbeatKeys::APPLICATION_KEY => $heartbeat->{HeartbeatKeys::DB_APPLICATION_KEY},
+            HeartbeatKeys::HEARTBEAT_KEY => $heartbeat->{HeartbeatKeys::DB_HEARTBEAT_KEY},
+            HeartbeatKeys::UNHEALTHY_AFTER_MINUTES => $heartbeat->{HeartbeatKeys::DB_UNHEALTHY_AFTER_MINUTES},
+            HeartbeatKeys::LAST_CHECK_IN => $heartbeat->{HeartbeatKeys::DB_LAST_CHECK_IN}->toIso8601String(),
         ];
     }
 
@@ -78,10 +79,10 @@ final class HeartbeatService
 
         return array_map(static function ($heartbeat) {
             return [
-                'applicationKey' => $heartbeat['application_key'],
-                'heartbeatKey' => $heartbeat['heartbeat_key'],
-                'unhealthyAfterMinutes' => $heartbeat['unhealthy_after_minutes'],
-                'lastCheckIn' => $heartbeat['last_check_in'],
+                HeartbeatKeys::APPLICATION_KEY => $heartbeat[HeartbeatKeys::DB_APPLICATION_KEY],
+                HeartbeatKeys::HEARTBEAT_KEY => $heartbeat[HeartbeatKeys::DB_HEARTBEAT_KEY],
+                HeartbeatKeys::UNHEALTHY_AFTER_MINUTES => $heartbeat[HeartbeatKeys::DB_UNHEALTHY_AFTER_MINUTES],
+                HeartbeatKeys::LAST_CHECK_IN => $heartbeat[HeartbeatKeys::DB_LAST_CHECK_IN],
             ];
         }, $heartbeats);
     }
