@@ -2,7 +2,7 @@
 type Query {
     exampleQuery(multiplyWith: Int): [ExampleType!]!
 
-    unhealthyHeartbeats(applicationKeys: [String!]): [Hearbeat!]!
+    unhealthyHeartbeats(applicationKeys: [String!]): [Heartbeat!]!
 }
 
 type Mutation {
@@ -16,7 +16,7 @@ input SendHeartbeatInput {
 }
 
 type SendHeartbeatPayload {
-    hearbeat: Hearbeat!
+    heartbeat: Heartbeat!
 }
 
 type Heartbeat {
