@@ -1,0 +1,31 @@
+# Define your GraphQL schema here. See https://graphql.org/learn/schema/ for more information.
+type Query {
+    exampleQuery(multiplyWith: Int): [ExampleType!]!
+
+    unhealthyHeartbeats(applicationKeys: [String!]): [Hearbeat!]!
+}
+
+type Mutation {
+    sendHeartbeat(input: SendHeartbeatInput!): SendHeartbeatPayload!
+}
+
+input SendHeartbeatInput {
+    applicationKey: String!
+    heartbeatKey: String!
+    unhealthyAfterMinutes: Int!
+}
+
+type SendHeartbeatPayload {
+    hearbeat: Hearbeat!
+}
+
+type Heartbeat {
+    applicationKey: String!
+    heartbeatKey: String!
+    unhealthyAfterMinutes: Int!
+    lastCheckIn: String!
+}
+
+type ExampleType {
+    value: Int!
+}

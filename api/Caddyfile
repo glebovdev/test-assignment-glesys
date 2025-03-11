@@ -1,0 +1,18 @@
+http://
+root * /var/www/public
+
+@staticFiles {
+	file
+	not path /
+	not path *.php
+}
+
+handle @staticFiles {
+	header Cache-Control "max-age=3600"
+	encode gzip
+	file_server
+}
+
+php_fastcgi 127.0.0.1:9000 {
+	trusted_proxies private_ranges
+}

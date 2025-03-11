@@ -1,0 +1,23 @@
+version: '3.6'
+services:
+  api:
+    build:
+      context: ./api
+      args:
+        APP_ENV: local
+    ports:
+      - 80
+    volumes:
+      - ./api:/var/www
+    networks:
+      default:
+        aliases:
+          - "${NAME}.localhost"
+    env_file: .env
+    environment:
+      - CONTAINER_ROLE=api
+    image: "docker-registry.glesys.io/dev/${NAME}/api:${TAG}"
+
+networks:
+  default:
+    name: services
