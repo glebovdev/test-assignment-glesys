@@ -3,11 +3,11 @@
 namespace App\Models;
 
 use Carbon\Carbon;
-use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\DB;
 
-final class Heartbeat extends Model
+class Heartbeat extends Model
 {
     use HasFactory;
 
@@ -28,18 +28,25 @@ final class Heartbeat extends Model
         return Carbon::now()->gt($threshold);
     }
 
-    /**
-     * Scope a query to only include unhealthy heartbeats.
-     *
-     * @param  Builder  $query
-     * @return Builder
-     */
     public function scopeUnhealthy($query)
     {
         $now = Carbon::now();
 
-        return $query->where(function ($query) use ($now) {
-            $query->whereRaw('datetime(last_check_in, \'+\' || unhealthy_after_minutes || \' minutes\') < ?', [$now->toDateTimeString()]);
-        });
+        return $query->whereRaw(
+            $this->getDatabaseSpecificDateAddExpression('last_check_in', 'unhealthy_after_minutes'),
+            [$now->toDateTimeString()]
+        );
+    }
+
+    protected function getDatabaseSpecificDateAddExpression($dateColumn, $minutesColumn): string
+    {
+        $driver = DB::connection()->getDriverName();
+
+        return match ($driver) {
+            'sqlite' => "datetime({$dateColumn}, '+' || {$minutesColumn} || ' minutes') < ?",
+            'pgsql' => "({$dateColumn} + ({$minutesColumn} || ' minutes')::interval) < ?",
+            'sqlsrv' => "DATEADD(minute, {$minutesColumn}, {$dateColumn}) < ?",
+            default => "DATE_ADD({$dateColumn}, INTERVAL {$minutesColumn} MINUTE) < ?"
+        };
     }
 }
