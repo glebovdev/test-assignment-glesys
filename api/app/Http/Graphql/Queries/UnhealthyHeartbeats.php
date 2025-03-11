@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Graphql\Queries;
 
 use App\Constants\HeartbeatKeys;
@@ -7,9 +9,6 @@ use App\Services\HeartbeatService;
 
 final class UnhealthyHeartbeats
 {
-    /**
-     * Constructor with dependency injection
-     */
     public function __construct(private readonly HeartbeatService $heartbeatService)
     {
     }
